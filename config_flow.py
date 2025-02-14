@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 import homeassistant.helpers.config_validation as cv
@@ -53,7 +53,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize config flow."""
         self._data: Dict[str, Any] = {}
-        self._reauth_entry = None
 
     async def async_step_user(
         self, user_input: Optional[Dict[str, Any]] = None

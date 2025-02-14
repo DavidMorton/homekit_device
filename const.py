@@ -4,9 +4,36 @@ CONF_ENTITIES = "entities"
 CONF_NAME = "name"
 CONF_DEVICE_TYPE = "device_type"
 
+# HomeKit Accessory Categories
+CATEGORY_KETTLE = 27  # HomeKit category for kettles
+CATEGORY_THERMOSTAT = 9
+CATEGORY_FAN = 3
+CATEGORY_LIGHTBULB = 5
+CATEGORY_HUMIDIFIER = 29
+CATEGORY_AIR_PURIFIER = 28
+CATEGORY_GARAGE_DOOR = 4
+CATEGORY_SECURITY_SYSTEM = 7
+
+# HomeKit Features and Characteristics
+CHAR_ON = "on"
+CHAR_ACTIVE = "active"
+CHAR_CURRENT_TEMP = "current-temperature"
+CHAR_TARGET_TEMP = "target-temperature"
+CHAR_CURRENT_STATE = "current-state"
+CHAR_TARGET_STATE = "target-state"
+CHAR_FAULT = "status-fault"
+CHAR_REMAINING_TIME = "remaining-duration"
+
+# Device Features
+FEATURE_ON_OFF = "on_off"
+FEATURE_TEMPERATURE = "temperature"
+FEATURE_TIMER = "timer"
+FEATURE_STATUS = "status"
+FEATURE_KEEP_WARM = "keep_warm"
+
 # Supported HomeKit device types
 DEVICE_TYPES = {
-    "kettle": "A smart kettle with temperature control, keep warm, and monitoring",
+    "kettle": "A smart kettle with temperature control and power state",
     "thermostat": "A thermostat with multiple temperature sensors",
     "fan": "A fan with multiple controls (speed, oscillation, etc.)",
     "light": "A light with multiple controls (brightness, colour, etc.)",
