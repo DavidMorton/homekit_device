@@ -115,22 +115,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         device_schemas = {
             "kettle": {
-                vol.Required(CONF_CURRENT_TEMP): selector.EntitySelector(
+                vol.Optional(CONF_CURRENT_TEMP): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
-                vol.Required(CONF_TARGET_TEMP): selector.EntitySelector(
+                vol.Optional(CONF_TARGET_TEMP): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="number")
                 ),
-                vol.Required(CONF_COUNTDOWN): selector.EntitySelector(
+                vol.Optional(CONF_COUNTDOWN): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
-                vol.Required(CONF_FAULT): selector.EntitySelector(
+                vol.Optional(CONF_FAULT): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
-                vol.Required(CONF_KEEP_WARM): selector.EntitySelector(
+                vol.Optional(CONF_KEEP_WARM): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="select")
                 ),
-                vol.Required(CONF_KEEP_WARM_TIME): selector.EntitySelector(
+                vol.Optional(CONF_KEEP_WARM_TIME): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="number")
                 ),
             },

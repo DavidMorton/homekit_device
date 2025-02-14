@@ -18,7 +18,7 @@ from homeassistant.const import (
     STATE_OFF,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.typing import ConfigType
 
@@ -34,26 +34,6 @@ from .const import (
     CONF_FAULT,
     CONF_KEEP_WARM,
     CONF_KEEP_WARM_TIME,
-    CONF_SPEED_CONTROL,
-    CONF_OSCILLATION,
-    CONF_DIRECTION,
-    CONF_BRIGHTNESS,
-    CONF_COLOR_TEMP,
-    CONF_RGB_CONTROL,
-    CONF_CURRENT_HUMIDITY,
-    CONF_TARGET_HUMIDITY,
-    CONF_WATER_LEVEL,
-    CONF_AIR_QUALITY,
-    CONF_FILTER_LIFE,
-    CONF_PM25,
-    CONF_VOC,
-    CONF_DOOR_POSITION,
-    CONF_OBSTRUCTION,
-    CONF_MOTION,
-    CONF_LIGHT_SWITCH,
-    CONF_ALARM_STATE,
-    CONF_SENSORS,
-    CONF_SIREN,
     CATEGORY_KETTLE,
     CATEGORY_THERMOSTAT,
     CATEGORY_FAN,
@@ -62,19 +42,9 @@ from .const import (
     CATEGORY_AIR_PURIFIER,
     CATEGORY_GARAGE_DOOR,
     CATEGORY_SECURITY_SYSTEM,
-    CHAR_ON,
-    CHAR_ACTIVE,
-    CHAR_CURRENT_TEMP,
-    CHAR_TARGET_TEMP,
-    CHAR_CURRENT_STATE,
-    CHAR_TARGET_STATE,
-    CHAR_FAULT,
-    CHAR_REMAINING_TIME,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-HOMEKIT_BRIDGE_DOMAIN = "homekit"
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the HomeKit Device Aggregator component."""
@@ -114,223 +84,120 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def setup_kettle(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Set up a kettle device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_KETTLE,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-            {
-                "type": CHAR_CURRENT_TEMP,
-                "entity_id": entry.data[CONF_CURRENT_TEMP],
-            },
-            {
-                "type": CHAR_TARGET_TEMP,
-                "entity_id": entry.data[CONF_TARGET_TEMP],
-            },
-            {
-                "type": CHAR_REMAINING_TIME,
-                "entity_id": entry.data[CONF_COUNTDOWN],
-            },
-            {
-                "type": CHAR_FAULT,
-                "entity_id": entry.data[CONF_FAULT],
-            },
-            {
-                "type": CHAR_ACTIVE,
-                "entity_id": entry.data[CONF_KEEP_WARM],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_thermostat(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a thermostat device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_THERMOSTAT,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-            {
-                "type": CHAR_CURRENT_TEMP,
-                "entity_id": entry.data[CONF_CURRENT_TEMP],
-            },
-            {
-                "type": CHAR_TARGET_TEMP,
-                "entity_id": entry.data[CONF_TARGET_TEMP],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_fan(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a fan device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_FAN,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_light(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a light device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_LIGHTBULB,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_humidifier(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a humidifier device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_HUMIDIFIER,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_air_purifier(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up an air purifier device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_AIR_PURIFIER,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_garage_door(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a garage door device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_POWER_SWITCH],
-        "category": CATEGORY_GARAGE_DOOR,
-        "features": [
-            {
-                "type": CHAR_ON,
-                "entity_id": entry.data[CONF_POWER_SWITCH],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def setup_security_system(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a security system device."""
-    accessory_config = {
-        ATTR_NAME: entry.data[CONF_NAME],
-        ATTR_ENTITY_ID: entry.data[CONF_ALARM_STATE],
-        "category": CATEGORY_SECURITY_SYSTEM,
-        "features": [
-            {
-                "type": CHAR_CURRENT_STATE,
-                "entity_id": entry.data[CONF_ALARM_STATE],
-            },
-        ],
-    }
-
-    await register_homekit_device(hass, entry, accessory_config)
-
-async def register_homekit_device(hass: HomeAssistant, entry: ConfigEntry, config: dict) -> None:
-    """Register a device with HomeKit."""
     # Create a unique identifier for the device
     unique_id = f"{DOMAIN}_{entry.entry_id}"
 
-    # Register the device with HomeKit Bridge
-    await hass.services.async_call(
-        HOMEKIT_BRIDGE_DOMAIN,
-        "add_accessory",
-        {
-            "name": config[ATTR_NAME],
-            "entity_id": config[ATTR_ENTITY_ID],
-            "category": config["category"],
-            "config": config,
+    # Register the device in Home Assistant
+    device_registry = dr.async_get(hass)
+    device = device_registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, unique_id)},
+        name=entry.data[CONF_NAME],
+        manufacturer="HomeKit Device Aggregator",
+        model="Smart Kettle",
+    )
+
+    # Get the entity registry
+    entity_registry = er.async_get(hass)
+
+    # Create a list of entities to include in HomeKit
+    entities_to_include = [entry.data[CONF_POWER_SWITCH]]  # Power switch is required
+
+    # Add optional entities if they were configured
+    optional_entities = [
+        CONF_CURRENT_TEMP,
+        CONF_TARGET_TEMP,
+        CONF_COUNTDOWN,
+        CONF_FAULT,
+        CONF_KEEP_WARM,
+        CONF_KEEP_WARM_TIME,
+    ]
+
+    for entity_key in optional_entities:
+        if entity_key in entry.data and entry.data[entity_key]:
+            entities_to_include.append(entry.data[entity_key])
+
+    # Create HomeKit configuration
+    homekit_config = {
+        "filter": {
+            "include_entities": entities_to_include
         },
+        "entity_config": {
+            entry.data[CONF_POWER_SWITCH]: {
+                "type": "switch",
+                "linked_battery_sensor": None,
+                "low_battery_threshold": 20,
+            }
+        }
+    }
+
+    # Add entity-specific configurations
+    if CONF_CURRENT_TEMP in entry.data and entry.data[CONF_CURRENT_TEMP]:
+        homekit_config["entity_config"][entry.data[CONF_CURRENT_TEMP]] = {
+            "type": "sensor",
+            "device_class": "temperature"
+        }
+
+    if CONF_TARGET_TEMP in entry.data and entry.data[CONF_TARGET_TEMP]:
+        homekit_config["entity_config"][entry.data[CONF_TARGET_TEMP]] = {
+            "type": "number",
+            "device_class": "temperature"
+        }
+
+    # Update HomeKit configuration
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(
+            entry, "homekit"
+        )
     )
 
     # Set up state change listeners for all relevant entities
-    entities_to_track = []
-    for feature in config.get("features", []):
-        if "entity_id" in feature:
-            entities_to_track.append(feature["entity_id"])
-
     @callback
     async def async_handle_state_change(entity_id: str, old_state: str, new_state: str) -> None:
         """Handle state changes for the device's entities."""
         if not new_state:
             return
 
-        # Find the feature that corresponds to this entity
-        feature = next(
-            (f for f in config.get("features", []) if f.get("entity_id") == entity_id),
-            None,
-        )
-        if not feature:
-            return
-
-        # Map the state to the appropriate HomeKit characteristic
-        value = new_state.state
-        if feature["type"] == CHAR_ON:
-            value = new_state.state == STATE_ON
-        elif feature["type"] in [CHAR_CURRENT_TEMP, CHAR_TARGET_TEMP]:
-            try:
-                value = float(new_state.state)
-            except ValueError:
-                _LOGGER.warning("Invalid temperature value: %s", new_state.state)
-                return
-
-        # Update the HomeKit characteristic
-        await hass.services.async_call(
-            HOMEKIT_BRIDGE_DOMAIN,
-            "change_state",
-            {
-                "entity_id": unique_id,
-                "characteristic": feature["type"],
-                "value": value,
-            },
+        # Update the entity's state in Home Assistant
+        await hass.states.async_set(
+            entity_id,
+            new_state.state,
+            new_state.attributes
         )
 
     # Register state change listeners
-    for entity_id in entities_to_track:
+    for entity_id in entities_to_include:
         if entity_id:  # Only register if entity is configured
             hass.helpers.event.async_track_state_change(
                 entity_id,
                 async_handle_state_change,
             )
+
+# Other device setup functions would be similar, but with device-specific configurations
+async def setup_thermostat(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up a thermostat device."""
+    _LOGGER.info("Thermostat setup not yet implemented")
+
+async def setup_fan(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up a fan device."""
+    _LOGGER.info("Fan setup not yet implemented")
+
+async def setup_light(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up a light device."""
+    _LOGGER.info("Light setup not yet implemented")
+
+async def setup_humidifier(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up a humidifier device."""
+    _LOGGER.info("Humidifier setup not yet implemented")
+
+async def setup_air_purifier(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up an air purifier device."""
+    _LOGGER.info("Air purifier setup not yet implemented")
+
+async def setup_garage_door(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up a garage door device."""
+    _LOGGER.info("Garage door setup not yet implemented")
+
+async def setup_security_system(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Set up a security system device."""
+    _LOGGER.info("Security system setup not yet implemented")
