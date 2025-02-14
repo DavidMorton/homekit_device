@@ -14,16 +14,43 @@
                 "description": "Select the entities to combine into a single HomeKit device",
                 "data": {
                     "power_switch": "Power Switch",
+                    "status_sensor": "Status Sensor (Optional)",
                     "current_temperature": "Current Temperature Sensor",
                     "target_temperature": "Target Temperature Control",
-                    "status_sensor": "Status Sensor (Optional)"
+                    "countdown_timer": "Countdown Timer",
+                    "fault_status": "Fault Status",
+                    "keep_warm_mode": "Keep Warm Mode",
+                    "keep_warm_idle_time": "Keep Warm Idle Time (minutes)",
+                    "temperature_sensors": "Additional Temperature Sensors",
+                    "speed_control": "Fan Speed Control",
+                    "oscillation": "Oscillation Control",
+                    "direction": "Direction Control",
+                    "brightness": "Brightness Control",
+                    "color_temperature": "Colour Temperature Control",
+                    "rgb_control": "RGB Colour Control",
+                    "current_humidity": "Current Humidity Sensor",
+                    "target_humidity": "Target Humidity Control",
+                    "water_level": "Water Level Sensor",
+                    "air_quality": "Air Quality Sensor",
+                    "filter_life": "Filter Life Sensor",
+                    "pm25": "PM2.5 Sensor",
+                    "voc": "VOC Sensor",
+                    "door_position": "Door Position Sensor/Control",
+                    "obstruction": "Obstruction Sensor",
+                    "motion": "Motion Sensor",
+                    "light_switch": "Light Control",
+                    "alarm_state": "Alarm State Control",
+                    "sensors": "Security Sensors",
+                    "siren": "Siren Control"
                 }
             }
         },
         "error": {
             "cannot_connect": "Failed to connect",
             "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
+            "unknown": "Unexpected error",
+            "entity_not_found": "Entity not found",
+            "invalid_entity": "Invalid entity type"
         },
         "abort": {
             "already_configured": "Device is already configured"
@@ -35,8 +62,53 @@
                 "kettle": "Smart Kettle",
                 "thermostat": "Multi-Sensor Thermostat",
                 "fan": "Multi-Control Fan",
-                "light": "Multi-Control Light"
+                "light": "Multi-Control Light",
+                "humidifier": "Smart Humidifier",
+                "air_purifier": "Air Purifier",
+                "garage_door": "Garage Door",
+                "security_system": "Security System"
             }
         }
+    },
+    "device_descriptions": {
+        "kettle": "Combines power control, temperature settings, keep warm functionality, and monitoring into a single HomeKit kettle",
+        "thermostat": "Creates a thermostat with multiple temperature sensors and controls",
+        "fan": "Combines fan controls (power, speed, oscillation, direction) into one device",
+        "light": "Aggregates light controls (power, brightness, colour) into a single light",
+        "humidifier": "Combines humidity sensing and control into a smart humidifier",
+        "air_purifier": "Creates an air purifier with air quality monitoring",
+        "garage_door": "Combines door controls and sensors into a garage door opener",
+        "security_system": "Creates a security system from multiple sensors and controls"
+    },
+    "entity_descriptions": {
+        "power_switch": "Main power control for the device",
+        "status_sensor": "Displays the device's current status",
+        "current_temperature": "Shows the current water temperature",
+        "target_temperature": "Sets the target water temperature",
+        "countdown_timer": "Shows remaining time for the current operation",
+        "fault_status": "Indicates any fault conditions",
+        "keep_warm_mode": "Controls the keep warm function",
+        "keep_warm_idle_time": "Sets how long to maintain the keep warm temperature",
+        "temperature_sensors": "Additional temperature sensors to monitor",
+        "speed_control": "Controls the fan speed",
+        "oscillation": "Controls the fan's oscillation",
+        "direction": "Controls the fan's rotation direction",
+        "brightness": "Controls the light's brightness level",
+        "color_temperature": "Adjusts the light's colour temperature",
+        "rgb_control": "Controls the light's RGB colour",
+        "current_humidity": "Shows the current humidity level",
+        "target_humidity": "Sets the target humidity level",
+        "water_level": "Monitors the water level in the device",
+        "air_quality": "Shows the overall air quality reading",
+        "filter_life": "Monitors the air filter's remaining life",
+        "pm25": "Shows the PM2.5 particulate matter level",
+        "voc": "Shows the Volatile Organic Compounds level",
+        "door_position": "Controls and monitors the door position",
+        "obstruction": "Detects obstructions in the door's path",
+        "motion": "Detects motion near the door",
+        "light_switch": "Controls the associated light",
+        "alarm_state": "Controls the security system's state",
+        "sensors": "Security sensors to monitor",
+        "siren": "Controls the security system's siren"
     }
 }

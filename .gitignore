@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+.venv/
+venv/
+.env
+__pycache__/
+*.pyc
+*.tmp
+*.log
+*.swp
+.vscode/
