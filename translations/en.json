@@ -1,0 +1,42 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure HomeKit Device Aggregator",
+                "description": "Choose a name and type for your aggregated device",
+                "data": {
+                    "name": "Device Name",
+                    "device_type": "Device Type"
+                }
+            },
+            "device_config": {
+                "title": "Configure Device Entities",
+                "description": "Select the entities to combine into a single HomeKit device",
+                "data": {
+                    "power_switch": "Power Switch",
+                    "current_temperature": "Current Temperature Sensor",
+                    "target_temperature": "Target Temperature Control",
+                    "status_sensor": "Status Sensor (Optional)"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "abort": {
+            "already_configured": "Device is already configured"
+        }
+    },
+    "selector": {
+        "device_type": {
+            "options": {
+                "kettle": "Smart Kettle",
+                "thermostat": "Multi-Sensor Thermostat",
+                "fan": "Multi-Control Fan",
+                "light": "Multi-Control Light"
+            }
+        }
+    }
+}

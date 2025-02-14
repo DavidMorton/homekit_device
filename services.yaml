@@ -1,0 +1,29 @@
+# Service definitions for HomeKit Device Aggregator
+
+reload:
+  name: Reload
+  description: Reload all HomeKit Device Aggregator entities without restarting Home Assistant.
+
+update_device:
+  name: Update Device
+  description: Update the configuration of an existing aggregated device.
+  fields:
+    device_id:
+      name: Device ID
+      description: The ID of the device to update.
+      required: true
+      selector:
+        device:
+          integration: homekit_device
+    name:
+      name: Name
+      description: New name for the device.
+      required: false
+      selector:
+        text:
+    entities:
+      name: Entities
+      description: New entity mappings for the device.
+      required: false
+      selector:
+        object:
