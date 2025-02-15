@@ -7,9 +7,8 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.const import (
     ATTR_NAME,
     STATE_ON,
-    DEVICE_CLASS_TEMPERATURE,
-    TEMP_CELSIUS,
     STATE_OFF,
+    TEMP_CELSIUS,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -104,11 +103,11 @@ class HomeKitDeviceSensor(HomeKitDeviceEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(hass, entry_id, name, entity_id)
         self._attr_native_unit_of_measurement = unit
-        self._attr_device_class = DEVICE_CLASS_TEMPERATURE if unit == TEMP_CELSIUS else None
+        self._attr_device_class = "temperature" if unit == TEMP_CELSIUS else None
 
         # Set HomeKit characteristics for temperature sensors
-        if self._attr_device_class == DEVICE_CLASS_TEMPERATURE:
-            self._attr_entity_category = None  # Show in HomeKit
+        if self._attr_device_class == "temperature":
+            self._attr_entity_category = None
             self._attr_translation_key = "temperature"
             self._attr_homekit_char = CHAR_TEMPERATURE_CURRENT
 
@@ -136,7 +135,7 @@ class HomeKitDeviceSelect(HomeKitDeviceEntity, SelectEntity):
 
         # Set HomeKit characteristics for keep warm functionality
         if "Keep Warm" in name and self.device_type == "kettle":
-            self._attr_entity_category = None  # Show in HomeKit
+            self._attr_entity_category = None
             self._attr_translation_key = "keep_warm"
             self._attr_homekit_char = CHAR_HEATING_COOLING_CURRENT
             self._attr_icon = "mdi:kettle-steam"

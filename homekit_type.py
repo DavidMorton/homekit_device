@@ -6,14 +6,13 @@ from homeassistant.components.homekit.const import (
     CHAR_ON,
     CHAR_TEMPERATURE_CURRENT,
     CHAR_TEMPERATURE_TARGET,
-    PROP_CELSIUS,
     SERV_SWITCH,
     SERV_THERMOSTAT,
 )
 from homeassistant.const import (
-    DEVICE_CLASS_POWER, TEMP_CELSIUS
+    DEVICE_CLASS_POWER,
+    TEMP_CELSIUS,
 )
-from homeassistant.components.sensor import DEVICE_CLASS_TEMPERATURE
 
 KETTLE_DEVICE_TYPE = {
     "category": CATEGORY_KETTLE,
@@ -27,7 +26,7 @@ KETTLE_DEVICE_TYPE = {
                     "name": "Current Temperature",
                     "char": CHAR_TEMPERATURE_CURRENT,
                     "unit": TEMP_CELSIUS,
-                    "device_class": DEVICE_CLASS_TEMPERATURE,
+                    "device_class": "temperature",
                     "min_value": 0,
                     "max_value": 100,
                 },

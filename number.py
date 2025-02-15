@@ -3,14 +3,13 @@ from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import TEMP_CELSIUS, DEVICE_CLASS_TEMPERATURE
+from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.homekit.const import (
     CHAR_TEMPERATURE_TARGET,
-    PROP_CELSIUS,
 )
-from homeassistant.components.sensor import DEVICE_CLASS_TEMPERATURE
+
 from .const import (
     DOMAIN,
     CONF_NAME,
