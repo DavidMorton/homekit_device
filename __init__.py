@@ -18,8 +18,12 @@ from homeassistant.const import (
     STATE_OFF,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import device_registry as dr, entity_registry as er
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.homekit import DOMAIN as HOMEKIT_DOMAIN
+from homeassistant.components.homekit.const import (
+    CONF_HOMEKIT_MODE,
+    HOMEKIT_MODE_ACCESSORY,
+)
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -34,15 +38,8 @@ from .const import (
     CONF_FAULT,
     CONF_KEEP_WARM,
     CONF_KEEP_WARM_TIME,
-    CATEGORY_KETTLE,
-    CATEGORY_THERMOSTAT,
-    CATEGORY_FAN,
-    CATEGORY_LIGHTBULB,
-    CATEGORY_HUMIDIFIER,
-    CATEGORY_AIR_PURIFIER,
-    CATEGORY_GARAGE_DOOR,
-    CATEGORY_SECURITY_SYSTEM,
 )
+from .accessory import HomeKitKettle
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -57,19 +54,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = entry.data
 
     device_type = entry.data[CONF_DEVICE_TYPE]
-    setup_functions = {
-        "kettle": setup_kettle,
-        "thermostat": setup_thermostat,
-        "fan": setup_fan,
-        "light": setup_light,
-        "humidifier": setup_humidifier,
-        "air_purifier": setup_air_purifier,
-        "garage_door": setup_garage_door,
-        "security_system": setup_security_system,
-    }
-
-    if device_type in setup_functions:
-        await setup_functions[device_type](hass, entry)
+    if device_type == "kettle":
+        await setup_kettle(hass, entry)
     else:
         _LOGGER.error("Unsupported device type: %s", device_type)
         return False
@@ -78,32 +64,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    if unload_ok := await hass.config_entries.async_unload_platforms(entry, [Platform.HOMEKIT]):
-        hass.data[DOMAIN].pop(entry.entry_id)
-    return unload_ok
+    # Remove the device from HomeKit
+    await remove_homekit_device(hass, entry)
+
+    hass.data[DOMAIN].pop(entry.entry_id)
+    return True
 
 async def setup_kettle(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Set up a kettle device."""
-    # Create a unique identifier for the device
-    unique_id = f"{DOMAIN}_{entry.entry_id}"
+    # Create HomeKit configuration for the kettle
+    homekit_config = {
+        "name": entry.data[CONF_NAME],
+        "mode": HOMEKIT_MODE_ACCESSORY,
+        "filter": {
+            "include_entities": [
+                entry.data[CONF_POWER_SWITCH],  # Required
+            ]
+        },
+    }
 
-    # Register the device in Home Assistant
-    device_registry = dr.async_get(hass)
-    device = device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, unique_id)},
-        name=entry.data[CONF_NAME],
-        manufacturer="HomeKit Device Aggregator",
-        model="Smart Kettle",
-    )
-
-    # Get the entity registry
-    entity_registry = er.async_get(hass)
-
-    # Create a list of entities to include in HomeKit
-    entities_to_include = [entry.data[CONF_POWER_SWITCH]]  # Power switch is required
-
-    # Add optional entities if they were configured
+    # Add optional entities if configured
     optional_entities = [
         CONF_CURRENT_TEMP,
         CONF_TARGET_TEMP,
@@ -115,89 +95,33 @@ async def setup_kettle(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
     for entity_key in optional_entities:
         if entity_key in entry.data and entry.data[entity_key]:
-            entities_to_include.append(entry.data[entity_key])
+            homekit_config["filter"]["include_entities"].append(entry.data[entity_key])
 
-    # Create HomeKit configuration
-    homekit_config = {
-        "filter": {
-            "include_entities": entities_to_include
-        },
-        "entity_config": {
-            entry.data[CONF_POWER_SWITCH]: {
-                "type": "switch",
-                "linked_battery_sensor": None,
-                "low_battery_threshold": 20,
-            }
-        }
+    # Register our custom accessory with HomeKit
+    hass.data[HOMEKIT_DOMAIN]["accessories"][entry.entry_id] = {
+        "accessory_class": HomeKitKettle,
+        "config": entry.data,
     }
 
-    # Add entity-specific configurations
-    if CONF_CURRENT_TEMP in entry.data and entry.data[CONF_CURRENT_TEMP]:
-        homekit_config["entity_config"][entry.data[CONF_CURRENT_TEMP]] = {
-            "type": "sensor",
-            "device_class": "temperature"
-        }
+    # Create a HomeKit config entry for this device
+    homekit_entry_data = {
+        "name": entry.data[CONF_NAME],
+        "port": None,  # Let HomeKit choose a port
+        "mode": HOMEKIT_MODE_ACCESSORY,
+        "filter": homekit_config["filter"],
+        "entity_config": {},
+    }
 
-    if CONF_TARGET_TEMP in entry.data and entry.data[CONF_TARGET_TEMP]:
-        homekit_config["entity_config"][entry.data[CONF_TARGET_TEMP]] = {
-            "type": "number",
-            "device_class": "temperature"
-        }
-
-    # Update HomeKit configuration
+    # Create the HomeKit config entry
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(
-            entry, "homekit"
+        hass.config_entries.flow.async_init(
+            HOMEKIT_DOMAIN,
+            context={"source": DOMAIN},
+            data=homekit_entry_data,
         )
     )
 
-    # Set up state change listeners for all relevant entities
-    @callback
-    async def async_handle_state_change(entity_id: str, old_state: str, new_state: str) -> None:
-        """Handle state changes for the device's entities."""
-        if not new_state:
-            return
-
-        # Update the entity's state in Home Assistant
-        await hass.states.async_set(
-            entity_id,
-            new_state.state,
-            new_state.attributes
-        )
-
-    # Register state change listeners
-    for entity_id in entities_to_include:
-        if entity_id:  # Only register if entity is configured
-            hass.helpers.event.async_track_state_change(
-                entity_id,
-                async_handle_state_change,
-            )
-
-# Other device setup functions would be similar, but with device-specific configurations
-async def setup_thermostat(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a thermostat device."""
-    _LOGGER.info("Thermostat setup not yet implemented")
-
-async def setup_fan(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a fan device."""
-    _LOGGER.info("Fan setup not yet implemented")
-
-async def setup_light(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a light device."""
-    _LOGGER.info("Light setup not yet implemented")
-
-async def setup_humidifier(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a humidifier device."""
-    _LOGGER.info("Humidifier setup not yet implemented")
-
-async def setup_air_purifier(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up an air purifier device."""
-    _LOGGER.info("Air purifier setup not yet implemented")
-
-async def setup_garage_door(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a garage door device."""
-    _LOGGER.info("Garage door setup not yet implemented")
-
-async def setup_security_system(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up a security system device."""
-    _LOGGER.info("Security system setup not yet implemented")
+async def remove_homekit_device(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Remove the device from HomeKit."""
+    if HOMEKIT_DOMAIN in hass.data and "accessories" in hass.data[HOMEKIT_DOMAIN]:
+        hass.data[HOMEKIT_DOMAIN]["accessories"].pop(entry.entry_id, None)
