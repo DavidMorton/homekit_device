@@ -11,6 +11,9 @@ from .const import (
     DOMAIN,
     CONF_NAME,
     CONF_POWER_SWITCH,
+    CONF_OSCILLATION,
+    CONF_SIREN,
+    CONF_KEEP_WARM,
 )
 from .entity import HomeKitDeviceSwitch
 
@@ -20,14 +23,44 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the HomeKit Device switches."""
-    # Get the power switch entity
+    device_type = hass.data[DOMAIN][config_entry.entry_id]["device_type"]
+    base_name = config_entry.data.get(CONF_NAME, "Smart Device")
+    entities = []
+
+    # Common power switch for all device types
     power_switch = config_entry.data.get(CONF_POWER_SWITCH)
     if power_switch:
-        async_add_entities([
+        entities.append(
             HomeKitDeviceSwitch(
                 hass,
                 config_entry.entry_id,
-                config_entry.data.get(CONF_NAME, "Smart Device"),
+                f"{base_name} Power",
                 power_switch,
             )
-        ])
+        )
+
+    # Device-specific switches
+    if device_type == "fan":
+        if oscillation := config_entry.data.get(CONF_OSCILLATION):
+            entities.append(
+                HomeKitDeviceSwitch(
+                    hass,
+                    config_entry.entry_id,
+                    f"{base_name} Oscillation",
+                    oscillation,
+                )
+            )
+
+    elif device_type == "security_system":
+        if siren := config_entry.data.get(CONF_SIREN):
+            entities.append(
+                HomeKitDeviceSwitch(
+                    hass,
+                    config_entry.entry_id,
+                    f"{base_name} Siren",
+                    siren,
+                )
+            )
+
+    if entities:
+        async_add_entities(entities)

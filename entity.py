@@ -16,7 +16,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.event import async_track_state_change
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_NAME
 
 class HomeKitDeviceEntity:
     """Representation of a HomeKit Device entity."""
@@ -28,10 +28,13 @@ class HomeKitDeviceEntity:
         self._name = name
         self._source_entity = entity_id
         self._attr_unique_id = f"{DOMAIN}_{entry_id}_{entity_id}"
+        self._attr_name = name
+        device_type = self.hass.data[DOMAIN][entry_id]["device_type"]
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{DOMAIN}_{entry_id}")},
-            name=name,
+            name=self.hass.data[DOMAIN][entry_id]["config"][CONF_NAME],
             manufacturer="HomeKit Device Aggregator",
+            model=device_type.title(),
         )
         self._attr_should_poll = False
 

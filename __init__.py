@@ -14,7 +14,14 @@ from .const import DOMAIN
 
 _LOGGER: Final = logging.getLogger(__name__)
 
-PLATFORMS: Final = [Platform.SWITCH]
+PLATFORMS: Final = [
+    Platform.SWITCH,
+    Platform.SENSOR,
+    Platform.NUMBER,
+    Platform.SELECT,
+    Platform.BINARY_SENSOR,
+    Platform.LIGHT,
+]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the HomeKit Device Aggregator integration."""
@@ -24,8 +31,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up HomeKit Device Aggregator from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+    device_type = entry.data.get("device_type", "Unknown")
     hass.data[DOMAIN][entry.entry_id] = {
         "config": entry.data,
+        "device_type": device_type,
     }
 
     # Register device
@@ -35,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         identifiers={(DOMAIN, entry.entry_id)},
         name=entry.title,
         manufacturer="HomeKit Device Aggregator",
-        model=entry.data.get("device_type", "Unknown").title(),
+        model=device_type.title(),
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
