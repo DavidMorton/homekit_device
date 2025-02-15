@@ -2,6 +2,10 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.homekit.const import (
+    CHAR_HEATING_COOLING_CURRENT,
+    CHAR_HEATING_COOLING_TARGET,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -13,7 +17,7 @@ from .const import (
 )
 from .entity import HomeKitDeviceSelect
 
-KETTLE_KEEP_WARM_OPTIONS = ["Off", "30min", "60min", "90min", "120min"]
+KETTLE_KEEP_WARM_OPTIONS = ["Off", "On"]  # Simplified to match HomeKit characteristics
 FAN_DIRECTION_OPTIONS = ["Forward", "Reverse"]
 
 async def async_setup_entry(
@@ -35,7 +39,7 @@ async def async_setup_entry(
                     config_entry.entry_id,
                     f"{base_name} Keep Warm",
                     keep_warm,
-                    KETTLE_KEEP_WARM_OPTIONS,
+                    KETTLE_KEEP_WARM_OPTIONS
                 )
             )
 

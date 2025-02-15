@@ -8,6 +8,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.const import (
     ATTR_NAME,
     STATE_ON,
+    DEVICE_CLASS_TEMPERATURE,
     STATE_OFF,
 )
 from homeassistant.core import HomeAssistant
@@ -15,8 +16,17 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.event import async_track_state_change
+from homeassistant.components.homekit.const import (
+    ATTR_DISPLAY_NAME,
+    CONF_FEATURE_LIST,
+    CHAR_TEMPERATURE_CURRENT,
+    CHAR_TEMPERATURE_TARGET,
+    CONF_LINKED_BATTERY_SENSOR,
+    CHAR_HEATING_COOLING_CURRENT,
+    CONF_LOW_BATTERY_THRESHOLD,
+)
 
-from .const import DOMAIN, CONF_NAME
+from .const import DOMAIN, CONF_NAME, CONF_DEVICE_TYPE
 
 class HomeKitDeviceEntity:
     """Representation of a HomeKit Device entity."""
@@ -29,12 +39,16 @@ class HomeKitDeviceEntity:
         self._source_entity = entity_id
         self._attr_unique_id = f"{DOMAIN}_{entry_id}_{entity_id}"
         self._attr_name = name
-        device_type = self.hass.data[DOMAIN][entry_id]["device_type"]
+        self._attr_has_entity_name = True
+        self.device_type = self.hass.data[DOMAIN][entry_id]["device_type"]
+        device_name = self.hass.data[DOMAIN][entry_id]["config"][CONF_NAME]
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{DOMAIN}_{entry_id}")},
-            name=self.hass.data[DOMAIN][entry_id]["config"][CONF_NAME],
+            name=device_name,
             manufacturer="HomeKit Device Aggregator",
-            model=device_type.title(),
+            model=self.device_type.title(),
+            suggested_area="Kitchen" if self.device_type == "kettle" else None,
+            via_device=(DOMAIN, f"{DOMAIN}_{entry_id}"),
         )
         self._attr_should_poll = False
 
@@ -64,6 +78,8 @@ class HomeKitDeviceEntity:
 class HomeKitDeviceSwitch(HomeKitDeviceEntity, SwitchEntity):
     """Representation of a HomeKit Device switch."""
 
+    _attr_device_class = "switch"
+
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the entity on."""
         await self.hass.services.async_call(
@@ -88,6 +104,13 @@ class HomeKitDeviceSensor(HomeKitDeviceEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(hass, entry_id, name, entity_id)
         self._attr_native_unit_of_measurement = unit
+        self._attr_device_class = DEVICE_CLASS_TEMPERATURE if "temperature" in name.lower() else None
+
+        # Set HomeKit characteristics for temperature sensors
+        if self._attr_device_class == DEVICE_CLASS_TEMPERATURE:
+            self._attr_entity_category = None  # Show in HomeKit
+            self._attr_translation_key = "temperature"
+            self._attr_homekit_char = CHAR_TEMPERATURE_CURRENT
 
     async def async_update_from_source(self, state) -> None:
         """Update the entity from the source entity state."""
@@ -96,6 +119,9 @@ class HomeKitDeviceSensor(HomeKitDeviceEntity, SensorEntity):
 
 class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
     """Representation of a HomeKit Device number."""
+
+    _attr_device_class = DEVICE_CLASS_TEMPERATURE
+    _attr_homekit_char = CHAR_TEMPERATURE_TARGET
 
     def __init__(
         self,
@@ -131,6 +157,8 @@ class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
 class HomeKitDeviceSelect(HomeKitDeviceEntity, SelectEntity):
     """Representation of a HomeKit Device select."""
 
+    _attr_has_entity_name = True
+
     def __init__(
         self,
         hass: HomeAssistant,
@@ -143,6 +171,13 @@ class HomeKitDeviceSelect(HomeKitDeviceEntity, SelectEntity):
         super().__init__(hass, entry_id, name, entity_id)
         self._attr_options = options
 
+        # Set HomeKit characteristics for keep warm functionality
+        if "Keep Warm" in name and self.device_type == "kettle":
+            self._attr_entity_category = None  # Show in HomeKit
+            self._attr_translation_key = "keep_warm"
+            self._attr_homekit_char = CHAR_HEATING_COOLING_CURRENT
+            self._attr_icon = "mdi:kettle-steam"
+
     async def async_select_option(self, option: str) -> None:
         """Update the current value."""
         await self.hass.services.async_call(
@@ -152,5 +187,9 @@ class HomeKitDeviceSelect(HomeKitDeviceEntity, SelectEntity):
 
     async def async_update_from_source(self, state) -> None:
         """Update the entity from the source entity state."""
-        self._attr_current_option = state.state
+        if "Keep Warm" in self._name and self.device_type == "kettle":
+            # Convert keep warm state to HomeKit format
+            self._attr_current_option = "On" if state.state != "Off" else "Off"
+        else:
+            self._attr_current_option = state.state
         self.async_write_ha_state()

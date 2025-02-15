@@ -4,13 +4,16 @@ from __future__ import annotations
 import logging
 from typing import Final
 
+from homeassistant.components.homekit import (
+    DOMAIN as HOMEKIT_DOMAIN,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_DEVICE_TYPE
 
 _LOGGER: Final = logging.getLogger(__name__)
 
@@ -31,10 +34,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up HomeKit Device Aggregator from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-    device_type = entry.data.get("device_type", "Unknown")
+    device_type = entry.data.get(CONF_DEVICE_TYPE, "Unknown")
     hass.data[DOMAIN][entry.entry_id] = {
         "config": entry.data,
         "device_type": device_type,
+        "entities": set(),
     }
 
     # Register device
@@ -45,7 +49,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         name=entry.title,
         manufacturer="HomeKit Device Aggregator",
         model=device_type.title(),
+        suggested_area="Kitchen" if device_type == "kettle" else None,
     )
+
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
