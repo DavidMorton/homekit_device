@@ -10,23 +10,20 @@ from homeassistant.components.homekit import (
 )
 from homeassistant.components.homekit.const import (
     CONF_ENTRY_INDEX,
-    TYPE_THERMOSTAT,
 )
 from homeassistant.components.homekit.models import HomeKitEntryData
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_NAME,
-    CONF_PORT,
     EVENT_HOMEASSISTANT_STARTED,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     DOMAIN,
     CONF_DEVICE_TYPE,
 )
-from .accessory import KettleAccessory
+from .accessory import ACCESSORY_TYPES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,13 +35,23 @@ async def async_setup_entry(
     """Set up HomeKit integration from a config entry."""
     _LOGGER.debug("Setting up HomeKit integration for %s", config_entry.data[CONF_NAME])
 
+    device_type = config_entry.data[CONF_DEVICE_TYPE]
+    if device_type not in ACCESSORY_TYPES:
+        _LOGGER.error(
+            "Device type %s not supported. Supported types: %s",
+            device_type,
+            ", ".join(ACCESSORY_TYPES.keys())
+        )
+        return False
+
     # Get the HomeKit entry data
     entry_data = HomeKitEntryData()
     entry_data.config_entry = config_entry
     entry_data.homekit = HomeKit(hass, HOMEKIT_DOMAIN, entry_data, CONF_ENTRY_INDEX)
 
-    # Create our custom accessory
-    accessory = KettleAccessory(
+    # Create the appropriate accessory based on device type
+    accessory_class = ACCESSORY_TYPES[device_type]
+    accessory = accessory_class(
         entry_data.homekit.driver,
         config_entry.data[CONF_NAME],
         config_entry.entry_id,
