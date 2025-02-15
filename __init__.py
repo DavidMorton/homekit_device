@@ -14,7 +14,7 @@ from .const import DOMAIN
 
 _LOGGER: Final = logging.getLogger(__name__)
 
-PLATFORMS: Final = [Platform.HOMEKIT]
+PLATFORMS: Final = [Platform.SWITCH]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the HomeKit Device Aggregator integration."""

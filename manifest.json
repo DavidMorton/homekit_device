@@ -2,14 +2,9 @@
   "domain": "homekit_device",
   "name": "HomeKit Device Aggregator",
   "documentation": "https://github.com/sammcj/homekit_device",
-  "dependencies": ["homekit"],
-  "after_dependencies": ["homekit"],
   "codeowners": ["@sammcj"],
   "config_flow": true,
   "version": "1.0.0",
   "iot_class": "local_push",
-  "requirements": ["voluptuous>=0.12.0"],
-  "homekit": {
-    "models": ["*"]
-  }
+  "requirements": ["voluptuous>=0.12.0"]
 }
