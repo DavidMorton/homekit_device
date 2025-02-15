@@ -119,7 +119,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
                 vol.Optional(CONF_TARGET_TEMP): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="number")
+                    selector.EntitySelectorConfig(domain="input_number")
                 ),
                 vol.Optional(CONF_COUNTDOWN): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
@@ -128,10 +128,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
                 vol.Optional(CONF_KEEP_WARM): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="select")
-                ),
-                vol.Optional(CONF_KEEP_WARM_TIME): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain="number")
+                    selector.EntitySelectorConfig(domain="switch")
                 ),
             },
             "thermostat": {

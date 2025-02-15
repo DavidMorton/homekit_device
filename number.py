@@ -1,21 +1,60 @@
 """Platform for number integration."""
 from __future__ import annotations
 
+from homeassistant.components.number import NumberEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.components.homekit.const import (
+    CHAR_TEMPERATURE_TARGET,
+    PROP_CELSIUS,
+)
+from homeassistant.components.sensor import DEVICE_CLASS_TEMPERATURE
 
 from .const import (
     DOMAIN,
     CONF_NAME,
     CONF_TARGET_TEMP,
-    CONF_KEEP_WARM_TIME,
-    CONF_SPEED_CONTROL,
-    CONF_BRIGHTNESS,
-    CONF_COLOR_TEMP,
-    CONF_TARGET_HUMIDITY,
 )
-from .entity import HomeKitDeviceNumber
+from .entity import HomeKitDeviceEntity
+
+class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
+    """Representation of a HomeKit Device number."""
+
+    _attr_native_unit_of_measurement = TEMP_CELSIUS
+    _attr_device_class = DEVICE_CLASS_TEMPERATURE
+    _attr_native_min_value = 0
+    _attr_native_max_value = 100
+    _attr_native_step = 1
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry_id: str,
+        name: str,
+        entity_id: str,
+    ) -> None:
+        """Initialize the number."""
+        super().__init__(hass, entry_id, name, entity_id)
+        self._attr_translation_key = "temperature"
+        self._attr_homekit_char = CHAR_TEMPERATURE_TARGET
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await self.hass.services.async_call(
+            "input_number", "set_value",
+            {"entity_id": self._source_entity, "value": value}
+        )
+
+    async def async_update_from_source(self, state) -> None:
+        """Update the entity from the source entity state."""
+        try:
+            self._attr_native_value = float(state.state)
+            self.async_write_ha_state()
+        except ValueError:
+            pass
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -36,75 +75,6 @@ async def async_setup_entry(
                     config_entry.entry_id,
                     f"{base_name} Target Temperature",
                     target_temp,
-                    min_value=0,
-                    max_value=100,
-                    step=1,
-                )
-            )
-        if keep_warm_time := config_entry.data.get(CONF_KEEP_WARM_TIME):
-            entities.append(
-                HomeKitDeviceNumber(
-                    hass,
-                    config_entry.entry_id,
-                    f"{base_name} Keep Warm Time",
-                    keep_warm_time,
-                    min_value=0,
-                    max_value=120,
-                    step=1,
-                )
-            )
-
-    elif device_type == "fan":
-        if speed_control := config_entry.data.get(CONF_SPEED_CONTROL):
-            entities.append(
-                HomeKitDeviceNumber(
-                    hass,
-                    config_entry.entry_id,
-                    f"{base_name} Speed",
-                    speed_control,
-                    min_value=0,
-                    max_value=100,
-                    step=1,
-                )
-            )
-
-    elif device_type == "light":
-        if brightness := config_entry.data.get(CONF_BRIGHTNESS):
-            entities.append(
-                HomeKitDeviceNumber(
-                    hass,
-                    config_entry.entry_id,
-                    f"{base_name} Brightness",
-                    brightness,
-                    min_value=0,
-                    max_value=100,
-                    step=1,
-                )
-            )
-        if color_temp := config_entry.data.get(CONF_COLOR_TEMP):
-            entities.append(
-                HomeKitDeviceNumber(
-                    hass,
-                    config_entry.entry_id,
-                    f"{base_name} Color Temperature",
-                    color_temp,
-                    min_value=2000,
-                    max_value=6500,
-                    step=100,
-                )
-            )
-
-    elif device_type == "humidifier":
-        if target_humidity := config_entry.data.get(CONF_TARGET_HUMIDITY):
-            entities.append(
-                HomeKitDeviceNumber(
-                    hass,
-                    config_entry.entry_id,
-                    f"{base_name} Target Humidity",
-                    target_humidity,
-                    min_value=0,
-                    max_value=100,
-                    step=1,
                 )
             )
 

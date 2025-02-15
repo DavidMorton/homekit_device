@@ -11,22 +11,25 @@ from homeassistant.components.homekit.const import (
     SERV_THERMOSTAT,
 )
 from homeassistant.const import (
-    TEMP_CELSIUS,
     DEVICE_CLASS_POWER,
-    DEVICE_CLASS_TEMPERATURE,
 )
+from homeassistant.components.sensor import DEVICE_CLASS_TEMPERATURE
 
 KETTLE_DEVICE_TYPE = {
     "category": CATEGORY_KETTLE,
     "services": [
         {
             "name": "Kettle",
-            "service": SERV_THERMOSTAT,  # Primary service for temperature control
+            "service": SERV_THERMOSTAT,
+            "primary": True,
             "chars": [
                 {
                     "name": "Current Temperature",
                     "char": CHAR_TEMPERATURE_CURRENT,
                     "properties": [PROP_CELSIUS],
+                    "device_class": DEVICE_CLASS_TEMPERATURE,
+                    "min_value": 0,
+                    "max_value": 100,
                 },
                 {
                     "name": "Target Temperature",
@@ -37,7 +40,12 @@ KETTLE_DEVICE_TYPE = {
                     "step_value": 1,
                 },
                 {
-                    "name": "Keep Warm",
+                    "name": "Current Operation",
+                    "char": CHAR_HEATING_COOLING_CURRENT,
+                    "valid_values": [0, 1],  # 0: Off, 1: Heat
+                },
+                {
+                    "name": "Target Operation",
                     "char": CHAR_HEATING_COOLING_TARGET,
                     "valid_values": [0, 1],  # 0: Off, 1: Heat
                 },
@@ -46,6 +54,7 @@ KETTLE_DEVICE_TYPE = {
         {
             "name": "Power",
             "service": SERV_SWITCH,
+            "linked": True,
             "chars": [
                 {
                     "name": "Power State",

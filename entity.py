@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.number import NumberEntity
+from homeassistant.components.sensor import DEVICE_CLASS_TEMPERATURE
 from homeassistant.components.select import SelectEntity
 from homeassistant.const import (
     ATTR_NAME,
@@ -116,43 +116,6 @@ class HomeKitDeviceSensor(HomeKitDeviceEntity, SensorEntity):
         """Update the entity from the source entity state."""
         self._attr_native_value = state.state
         self.async_write_ha_state()
-
-class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
-    """Representation of a HomeKit Device number."""
-
-    _attr_device_class = DEVICE_CLASS_TEMPERATURE
-    _attr_homekit_char = CHAR_TEMPERATURE_TARGET
-
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        entry_id: str,
-        name: str,
-        entity_id: str,
-        min_value: float = 0,
-        max_value: float = 100,
-        step: float = 1,
-    ) -> None:
-        """Initialize the number."""
-        super().__init__(hass, entry_id, name, entity_id)
-        self._attr_native_min_value = min_value
-        self._attr_native_max_value = max_value
-        self._attr_native_step = step
-
-    async def async_set_native_value(self, value: float) -> None:
-        """Update the current value."""
-        await self.hass.services.async_call(
-            "number", "set_value",
-            {"entity_id": self._source_entity, "value": value}
-        )
-
-    async def async_update_from_source(self, state) -> None:
-        """Update the entity from the source entity state."""
-        try:
-            self._attr_native_value = float(state.state)
-            self.async_write_ha_state()
-        except ValueError:
-            pass
 
 class HomeKitDeviceSelect(HomeKitDeviceEntity, SelectEntity):
     """Representation of a HomeKit Device select."""
