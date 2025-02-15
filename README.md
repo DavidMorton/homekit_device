@@ -27,28 +27,54 @@ This custom integration for Home Assistant allows you to combine multiple entiti
 
 Combines all kettle controls and sensors into a single HomeKit kettle device.
 
+#### Setup Steps
+
+1. First, create the required helpers in Home Assistant:
+   - Go to Settings > Devices & Services > Helpers
+   - Click "+ Create Helper"
+   - Create an "Input Number" helper for target temperature:
+     * Name: "Kettle Target Temperature"
+     * Minimum value: 0
+     * Maximum value: 100
+     * Step size: 1
+     * Unit of measurement: °C
+     * Icon: mdi:thermometer
+   - Create a "Switch" helper for keep warm mode:
+     * Name: "Kettle Keep Warm"
+     * Icon: mdi:kettle-steam
+
+2. Add the HomeKit Device Aggregator:
+   - Go to Settings > Devices & Services
+   - Click "+ Add Integration"
+   - Search for "HomeKit Device Aggregator"
+   - Select "kettle" as the device type
+   - Configure the following:
+     * Name: "Smart Kettle"
+     * Power Switch: Your kettle's power switch
+     * Current Temperature: Your kettle's temperature sensor
+     * Target Temperature: input_number.kettle_target_temperature
+     * Keep Warm: input_boolean.kettle_keep_warm
+
+3. Configure the HomeKit Bridge:
+   - Go to Settings > Devices & Services
+   - Find "HomeKit Bridge" and click "Configure"
+   - Add a new bridge configuration
+   - Include these domains:
+     * switch
+     * sensor
+     * input_number
+     * input_boolean
+   - The kettle will appear in HomeKit as a single device with:
+     * Power toggle
+     * Temperature display
+     * Temperature control slider
+     * Keep warm mode toggle
+
 - Required:
   - Power Switch (switch.kettle)
   - Current Temperature (sensor.kettle_temperature)
-  - Target Temperature (number.kettle_target_temperature)
-  - Countdown Timer (sensor.kettle_countdown_left)
-  - Fault Status (sensor.kettle_fault)
-  - Keep Warm Mode (select.kettle_keep_warm)
-  - Keep Warm Idle Time (number.kettle_keep_warm_idle_time_mins)
-
-Example configuration:
-```yaml
-name: Smart Kettle
-device_type: kettle
-power_switch: switch.kettle
-current_temperature: sensor.kettle_temperature
-target_temperature: number.kettle_target_temperature
-countdown_timer: sensor.kettle_countdown_left
-fault_status: sensor.kettle_fault
-keep_warm_mode: select.kettle_keep_warm
-keep_warm_idle_time: number.kettle_keep_warm_idle_time_mins
-```
-
+  - Target Temperature (input_number helper)
+  - Keep Warm Mode (input_boolean helper)
 ### Multi-Sensor Thermostat
 
 Creates a thermostat with multiple temperature sensors and controls.
@@ -138,15 +164,24 @@ Creates a security system from multiple sensors and controls.
 
 This integration works alongside the Home Assistant HomeKit Bridge. After configuring your aggregated device, it will appear in the Home app as a single device with all its capabilities, rather than multiple separate accessories.
 
+### How it Works
+
+1. The integration creates a single device in Home Assistant that groups all related entities
+2. When exposed through the HomeKit Bridge, it appears as a single accessory in HomeKit
+3. The integration maps Home Assistant entities to appropriate HomeKit characteristics:
+   - Switches become binary controls
+   - Sensors become read-only characteristics
+   - Input numbers become sliders
+   - Input booleans become toggles
+
 ### Kettle Features in HomeKit
 
+When you open the Home app, your kettle will appear as a single device with:
 - Power on/off
-- Current temperature display
-- Target temperature control
-- Keep warm mode toggle
-- Keep warm duration setting
-- Countdown timer display
-- Fault status monitoring
+- Current temperature display (in °C)
+- Temperature control slider (0-100°C)
+- Keep warm mode toggle (On/Off)
+- All controls are accessible from the same device card
 
 ## Troubleshooting
 
@@ -154,6 +189,10 @@ This integration works alongside the Home Assistant HomeKit Bridge. After config
    - Ensure all required entities are correctly configured
    - Check that the HomeKit Bridge is running
    - Restart Home Assistant
+    - Verify that all required domains are included in the HomeKit Bridge configuration
+    - Check that helpers (input_number, input_boolean) are properly set up
+    - Make sure the device appears correctly in Home Assistant before exposing to HomeKit
+    - Try removing and re-adding the device in the Home app
 
 2. If states aren't updating:
    - Verify that all entities are working in Home Assistant

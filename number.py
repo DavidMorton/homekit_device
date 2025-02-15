@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import TEMP_CELSIUS
+from homeassistant.const import TEMP_CELSIUS, DEVICE_CLASS_TEMPERATURE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.homekit.const import (
@@ -11,7 +11,6 @@ from homeassistant.components.homekit.const import (
     PROP_CELSIUS,
 )
 from homeassistant.components.sensor import DEVICE_CLASS_TEMPERATURE
-
 from .const import (
     DOMAIN,
     CONF_NAME,
@@ -23,7 +22,7 @@ class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
     """Representation of a HomeKit Device number."""
 
     _attr_native_unit_of_measurement = TEMP_CELSIUS
-    _attr_device_class = DEVICE_CLASS_TEMPERATURE
+    _attr_device_class = "temperature"
     _attr_native_min_value = 0
     _attr_native_max_value = 100
     _attr_native_step = 1

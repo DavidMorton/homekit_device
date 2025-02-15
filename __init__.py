@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from typing import Final
+import importlib
 
 from homeassistant.components.homekit import (
     DOMAIN as HOMEKIT_DOMAIN,
@@ -41,6 +42,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "entities": set(),
     }
 
+    # Import platform modules
+    for platform in PLATFORMS:
+        platform_module = f".{platform}"
+        await hass.async_add_executor_job(
+            importlib.import_module, platform_module, __package__
+        )
+
+    # Register device
     # Register device
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
