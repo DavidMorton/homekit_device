@@ -3,18 +3,14 @@ from __future__ import annotations
 
 import logging
 from typing import Final
-import importlib
 
-from homeassistant.components.homekit import (
-    DOMAIN as HOMEKIT_DOMAIN,
-)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN, CONF_DEVICE_TYPE
+from .const import DOMAIN
 
 _LOGGER: Final = logging.getLogger(__name__)
 
@@ -35,33 +31,25 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up HomeKit Device Aggregator from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-    device_type = entry.data.get(CONF_DEVICE_TYPE, "Unknown")
+    device_type = entry.data.get("device_type", "Unknown")
     hass.data[DOMAIN][entry.entry_id] = {
         "config": entry.data,
         "device_type": device_type,
         "entities": set(),
     }
 
-    # Import platform modules
-    for platform in PLATFORMS:
-        platform_module = f".{platform}"
-        await hass.async_add_executor_job(
-            importlib.import_module, platform_module, __package__
-        )
-
-    # Register device
     # Register device
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, entry.entry_id)},
+        identifiers={(DOMAIN, f"{DOMAIN}_{entry.entry_id}")},
         name=entry.title,
         manufacturer="HomeKit Device Aggregator",
         model=device_type.title(),
         suggested_area="Kitchen" if device_type == "kettle" else None,
     )
 
-
+    # Set up platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

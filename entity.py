@@ -15,12 +15,6 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.event import async_track_state_change
-from homeassistant.components.homekit.const import (
-    ATTR_DISPLAY_NAME,
-    CONF_FEATURE_LIST,
-    CONF_LINKED_BATTERY_SENSOR,
-    CONF_LOW_BATTERY_THRESHOLD,
-)
 
 from .const import DOMAIN, CONF_NAME, CONF_DEVICE_TYPE
 from .homekit_type import (

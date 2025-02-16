@@ -1,6 +1,5 @@
 """HomeKit device type definitions."""
 from homeassistant.components.homekit.const import (
-    CATEGORY_KETTLE,
     SERV_SWITCH,
     SERV_THERMOSTAT,
 )
@@ -9,19 +8,26 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 
-# HomeKit Characteristic UUIDs
+# HomeKit Categories (from HAP-python)
+CATEGORY_KETTLE = 27
+
+# HomeKit Characteristic UUIDs (from HAP-python)
 CHAR_ON = "00000025-0000-1000-8000-0026BB765291"
 CHAR_CURRENT_TEMPERATURE = "00000011-0000-1000-8000-0026BB765291"
 CHAR_TARGET_TEMPERATURE = "00000035-0000-1000-8000-0026BB765291"
 CHAR_HEATING_COOLING_CURRENT = "0000000F-0000-1000-8000-0026BB765291"
 CHAR_HEATING_COOLING_TARGET = "00000033-0000-1000-8000-0026BB765291"
 
+# HomeKit Service UUIDs (from HAP-python)
+SERVICE_THERMOSTAT = "0000004A-0000-1000-8000-0026BB765291"
+SERVICE_SWITCH = "00000049-0000-1000-8000-0026BB765291"
+
 KETTLE_DEVICE_TYPE = {
     "category": CATEGORY_KETTLE,
     "services": [
         {
             "name": "Kettle",
-            "service": SERV_THERMOSTAT,
+            "service": SERVICE_THERMOSTAT,
             "primary": True,
             "chars": [
                 {
@@ -54,7 +60,7 @@ KETTLE_DEVICE_TYPE = {
         },
         {
             "name": "Power",
-            "service": SERV_SWITCH,
+            "service": SERVICE_SWITCH,
             "linked": True,
             "chars": [
                 {
