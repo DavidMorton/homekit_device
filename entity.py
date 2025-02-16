@@ -8,7 +8,7 @@ from homeassistant.const import (
     ATTR_NAME,
     STATE_ON,
     STATE_OFF,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
@@ -103,7 +103,7 @@ class HomeKitDeviceSensor(HomeKitDeviceEntity, SensorEntity):
         """Initialize the sensor."""
         super().__init__(hass, entry_id, name, entity_id)
         self._attr_native_unit_of_measurement = unit
-        self._attr_device_class = "temperature" if unit == TEMP_CELSIUS else None
+        self._attr_device_class = "temperature" if unit == UnitOfTemperature.CELSIUS else None
 
         # Set HomeKit characteristics for temperature sensors
         if self._attr_device_class == "temperature":

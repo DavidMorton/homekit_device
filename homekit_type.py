@@ -11,7 +11,7 @@ from homeassistant.components.homekit.const import (
 )
 from homeassistant.const import (
     DEVICE_CLASS_POWER,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
 )
 
 KETTLE_DEVICE_TYPE = {
@@ -25,7 +25,7 @@ KETTLE_DEVICE_TYPE = {
                 {
                     "name": "Current Temperature",
                     "char": CHAR_TEMPERATURE_CURRENT,
-                    "unit": TEMP_CELSIUS,
+                    "unit": UnitOfTemperature.CELSIUS,
                     "device_class": "temperature",
                     "min_value": 0,
                     "max_value": 100,
@@ -33,7 +33,7 @@ KETTLE_DEVICE_TYPE = {
                 {
                     "name": "Target Temperature",
                     "char": CHAR_TEMPERATURE_TARGET,
-                    "unit": TEMP_CELSIUS,
+                    "unit": UnitOfTemperature.CELSIUS,
                     "min_value": 0,
                     "max_value": 100,
                     "step_value": 1,
