@@ -1,11 +1,6 @@
 """HomeKit device type definitions."""
 from homeassistant.components.homekit.const import (
     CATEGORY_KETTLE,
-    CHAR_HEATING_COOLING_CURRENT,
-    CHAR_HEATING_COOLING_TARGET,
-    CHAR_ON,
-    CHAR_TEMPERATURE_CURRENT,
-    CHAR_TEMPERATURE_TARGET,
     SERV_SWITCH,
     SERV_THERMOSTAT,
 )
@@ -13,6 +8,13 @@ from homeassistant.const import (
     DEVICE_CLASS_POWER,
     UnitOfTemperature,
 )
+
+# HomeKit Characteristic UUIDs
+CHAR_ON = "00000025-0000-1000-8000-0026BB765291"
+CHAR_CURRENT_TEMPERATURE = "00000011-0000-1000-8000-0026BB765291"
+CHAR_TARGET_TEMPERATURE = "00000035-0000-1000-8000-0026BB765291"
+CHAR_HEATING_COOLING_CURRENT = "0000000F-0000-1000-8000-0026BB765291"
+CHAR_HEATING_COOLING_TARGET = "00000033-0000-1000-8000-0026BB765291"
 
 KETTLE_DEVICE_TYPE = {
     "category": CATEGORY_KETTLE,
@@ -24,7 +26,7 @@ KETTLE_DEVICE_TYPE = {
             "chars": [
                 {
                     "name": "Current Temperature",
-                    "char": CHAR_TEMPERATURE_CURRENT,
+                    "char": CHAR_CURRENT_TEMPERATURE,
                     "unit": UnitOfTemperature.CELSIUS,
                     "device_class": "temperature",
                     "min_value": 0,
@@ -32,7 +34,7 @@ KETTLE_DEVICE_TYPE = {
                 },
                 {
                     "name": "Target Temperature",
-                    "char": CHAR_TEMPERATURE_TARGET,
+                    "char": CHAR_TARGET_TEMPERATURE,
                     "unit": UnitOfTemperature.CELSIUS,
                     "min_value": 0,
                     "max_value": 100,

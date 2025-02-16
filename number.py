@@ -6,9 +6,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.homekit.const import (
-    CHAR_TEMPERATURE_TARGET,
-)
 
 from .const import (
     DOMAIN,
@@ -16,6 +13,7 @@ from .const import (
     CONF_TARGET_TEMP,
 )
 from .entity import HomeKitDeviceEntity
+from .homekit_type import CHAR_TARGET_TEMPERATURE
 
 class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
     """Representation of a HomeKit Device number."""
@@ -37,7 +35,7 @@ class HomeKitDeviceNumber(HomeKitDeviceEntity, NumberEntity):
         """Initialize the number."""
         super().__init__(hass, entry_id, name, entity_id)
         self._attr_translation_key = "temperature"
-        self._attr_homekit_char = CHAR_TEMPERATURE_TARGET
+        self._attr_homekit_char = CHAR_TARGET_TEMPERATURE
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""

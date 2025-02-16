@@ -18,14 +18,16 @@ from homeassistant.helpers.event import async_track_state_change
 from homeassistant.components.homekit.const import (
     ATTR_DISPLAY_NAME,
     CONF_FEATURE_LIST,
-    CHAR_TEMPERATURE_CURRENT,
-    CHAR_TEMPERATURE_TARGET,
     CONF_LINKED_BATTERY_SENSOR,
-    CHAR_HEATING_COOLING_CURRENT,
     CONF_LOW_BATTERY_THRESHOLD,
 )
 
 from .const import DOMAIN, CONF_NAME, CONF_DEVICE_TYPE
+from .homekit_type import (
+    CHAR_CURRENT_TEMPERATURE,
+    CHAR_TARGET_TEMPERATURE,
+    CHAR_HEATING_COOLING_CURRENT,
+)
 
 class HomeKitDeviceEntity:
     """Representation of a HomeKit Device entity."""
@@ -109,7 +111,7 @@ class HomeKitDeviceSensor(HomeKitDeviceEntity, SensorEntity):
         if self._attr_device_class == "temperature":
             self._attr_entity_category = None
             self._attr_translation_key = "temperature"
-            self._attr_homekit_char = CHAR_TEMPERATURE_CURRENT
+            self._attr_homekit_char = CHAR_CURRENT_TEMPERATURE
 
     async def async_update_from_source(self, state) -> None:
         """Update the entity from the source entity state."""
