@@ -4,7 +4,6 @@ from homeassistant.components.homekit.const import (
     SERV_THERMOSTAT,
 )
 from homeassistant.const import (
-    DeviceClass,
     UnitOfTemperature,
 )
 
@@ -66,7 +65,7 @@ KETTLE_DEVICE_TYPE = {
                 {
                     "name": "Power State",
                     "char": CHAR_ON,
-                    "device_class": DeviceClass.POWER,
+                    "device_class": "power",
                 },
             ],
         },
