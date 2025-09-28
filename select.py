@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.components.homekit.const import (
+from .homekit_type import (
     CHAR_HEATING_COOLING_CURRENT,
     CHAR_HEATING_COOLING_TARGET,
 )

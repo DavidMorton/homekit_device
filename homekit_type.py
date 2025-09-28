@@ -1,8 +1,4 @@
 """HomeKit device type definitions."""
-from homeassistant.components.homekit.const import (
-    SERV_SWITCH,
-    SERV_THERMOSTAT,
-)
 from homeassistant.const import (
     UnitOfTemperature,
 )
